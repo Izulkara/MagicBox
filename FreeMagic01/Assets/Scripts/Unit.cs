@@ -13,7 +13,7 @@ public class Unit : MonoBehaviour {
 	public int unitCriticalStrikeChance;
 
 	public Unit() 
-		: this (100, 5, 10, 1, 5) {
+		: this (100, 5, 10, 1, 5, 5) {
 	}
 
 	public Unit(int health, int minAttack, int maxAttack, int defense, int dodgeChance, int criticalStrikeChance) {
