@@ -35,6 +35,7 @@ public class Tile : MonoBehaviour {
 		GameObject grid = GameObject.Find ("Grid");
 		Grid gridScript = grid.GetComponent<Grid> ();
 		gridScript.changeSelected(this);
+        gridScript.moveUnit(new Vector3(transform.position.x, 1, transform.position.z));
 
 	}
 
