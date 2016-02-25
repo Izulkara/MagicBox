@@ -4,6 +4,7 @@ using System.Collections;
 public class Grid : MonoBehaviour {
 
 	private Tile currentlySelected;
+    public BattleManager theBattleManager;
     bool Paused = false;
 
 	// Use this for initialization
@@ -40,6 +41,10 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    public void moveUnit(Vector3 theVector){
+        theBattleManager.moveUnit(theVector);
+    }
+
     // Getter method for returning whether the current tile is selected or not
 	public bool tileSelected() {
 		return currentlySelected != null;
@@ -64,18 +69,18 @@ public class Grid : MonoBehaviour {
 	private void toggleHighlightForMovement() {
 		if (currentlySelected.NorthTile != null) {
 			currentlySelected.NorthTile.overrideHighlight ();
-		} 
+        } 
 
 		if (currentlySelected.SouthTile != null) {
 			currentlySelected.SouthTile.overrideHighlight ();
-		}
+        }
 
 		if (currentlySelected.EastTile != null) {
 			currentlySelected.EastTile.overrideHighlight ();
-		}
+        }
 
 		if (currentlySelected.WestTile != null) {
 			currentlySelected.WestTile.overrideHighlight ();
-		}
+        }
 	}
 }
