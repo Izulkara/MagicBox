@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class pauseMenuScript : MonoBehaviour
 {
+    public GameObject menu;
     public Canvas quitMenu;
+    public Canvas winMenu;  
     public Button startText;
     public Button exitText;
-    bool Paused = true;
+    bool showing;
 
     // Use this for initialization
     void Start()
@@ -16,7 +19,8 @@ public class pauseMenuScript : MonoBehaviour
         startText = startText.GetComponent<Button>();
         exitText = exitText.GetComponent<Button>();
         quitMenu.enabled = false;
-
+        winMenu.enabled = false;
+        menu.SetActive(showing);
     }
 
     public void ExitPress() 
@@ -24,7 +28,6 @@ public class pauseMenuScript : MonoBehaviour
         quitMenu.enabled = true;
         startText.enabled = false;
         exitText.enabled = false;
-
     }
 
     public void NoPress()
@@ -32,17 +35,28 @@ public class pauseMenuScript : MonoBehaviour
         quitMenu.enabled = false; 
         startText.enabled = true; 
         exitText.enabled = true;
-
     }
 
-    public void StartLevel() 
+    public void WinGame()
     {
-        Application.LoadLevel(2); 
+        winMenu.enabled = true;
+    }
+
+    public void Resume() 
+    {
+        showing = !showing;
+        togglePause();
+        menu.SetActive(false);
     }
 
     public void ExitGame() 
     {
-        Application.LoadLevel(0);
+        SceneManager.LoadScene(0);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(1);
     }
 
     // Update is called once per frame
@@ -50,16 +64,23 @@ public class pauseMenuScript : MonoBehaviour
     {
         if (Input.GetKeyDown("escape"))
         {
-            if(Paused == false)
-            {
-                Paused = true;
-                Start();
-            }
-            else
-            {
-                Paused = false;
-                StartLevel();
-            }
+            togglePause();
+            showing = !showing;
+            menu.SetActive(showing);
+        } 
+    }
+   
+    bool togglePause()
+    {
+        if (Time.timeScale == 0f)
+        {
+            Time.timeScale = 1f;
+            return (false);
         }
-	}
+        else
+        {
+            Time.timeScale = 0f;
+            return (true);
+        }
+    }
 }

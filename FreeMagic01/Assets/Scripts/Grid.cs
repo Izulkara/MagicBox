@@ -4,40 +4,22 @@ using System.Collections;
 public class Grid : MonoBehaviour {
 
 	private Tile currentlySelected;
-    bool Paused = false;
+    public BattleManager theBattleManager;
 
 	// Use this for initialization
 	void Start ()
     {
-        if (Input.GetKeyDown("escape"))
-        {
-            if (Paused == false)
-            {
-                Paused = true;
-                Application.LoadLevel(1);
-            }
-            else
-            {
-                Paused = false;
-            }
-        }
+
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetKeyDown("escape"))
-        {
-            if (Paused == false)
-            {
-                Paused = true;
-                Application.LoadLevel(1);
-            }
-            else
-            {
-                Paused = false;
-            }
-        }
+
+    }
+
+    public void moveUnit(Vector3 theVector){
+        theBattleManager.moveUnit(theVector);
     }
 
     // Getter method for returning whether the current tile is selected or not
@@ -64,18 +46,18 @@ public class Grid : MonoBehaviour {
 	private void toggleHighlightForMovement() {
 		if (currentlySelected.NorthTile != null) {
 			currentlySelected.NorthTile.overrideHighlight ();
-		} 
+        } 
 
 		if (currentlySelected.SouthTile != null) {
 			currentlySelected.SouthTile.overrideHighlight ();
-		}
+        }
 
 		if (currentlySelected.EastTile != null) {
 			currentlySelected.EastTile.overrideHighlight ();
-		}
+        }
 
 		if (currentlySelected.WestTile != null) {
 			currentlySelected.WestTile.overrideHighlight ();
-		}
+        }
 	}
 }
