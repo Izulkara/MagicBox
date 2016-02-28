@@ -7,8 +7,8 @@ public class Tile : MonoBehaviour {
     public Tile WestTile;
     public Tile SouthTile;
     public Tile EastTile;
-    public GameObject Occupier;
-	public GameObject Highlight;
+    public Unit Occupier;
+	public GameObject TileHighlight;
 
     // Use this for initialization
     void Start () {
@@ -20,23 +20,24 @@ public class Tile : MonoBehaviour {
 		
 	}
 
-	// External method used to toggle the highlight graphic without a mouse event
-	public void overrideHighlight() {
-		Highlight.SetActive (!Highlight.activeSelf);
+	// External method used to toggle the highlight graphic.
+	public void toggleTileHighlight() {
+		TileHighlight.SetActive (!TileHighlight.activeSelf);
 	}
-
-    // Mouse event method that triggers when a mouse click (left mouse button/mouse 1) hits a collider
+		
+    // Mouse event method that triggers when a mouse click (left mouse button/mouse 1) hits a Tile's collider
 	void OnMouseDown() {
 		// Toggle the highlight graphic on the tile
-		Highlight.SetActive (!Highlight.activeSelf);
+		// TileHighlight.SetActive (!TileHighlight.activeSelf);
 
-		// Tell the grid that this tile has been selected
-		// If the grid has a tile selected tell the grid to attempt to move to this position
+		// Accessing the Grid.
 		GameObject grid = GameObject.Find ("Grid");
 		Grid gridScript = grid.GetComponent<Grid> ();
-		gridScript.changeSelected(this);
-        gridScript.moveUnit(new Vector3(transform.position.x, 1, transform.position.z));
 
+		// If a Unit is selected we're attempting to move, so attempt a move. 
+		if (gridScript.isUnitSelected ()) {
+			gridScript.attemptMove (new Vector3 (transform.position.x, 1, transform.position.z), this);
+		}
 	}
 
 

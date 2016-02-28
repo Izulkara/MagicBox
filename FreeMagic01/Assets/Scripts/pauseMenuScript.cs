@@ -49,8 +49,14 @@ public class pauseMenuScript : MonoBehaviour
         menu.SetActive(false);
     }
 
+    public void WinExitGame()
+    {
+        SceneManager.LoadScene(0);
+    }
+
     public void ExitGame() 
     {
+        togglePause();
         SceneManager.LoadScene(0);
     }
 
