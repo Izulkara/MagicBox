@@ -7,28 +7,16 @@ public class BattleManager : MonoBehaviour {
     public Tile selectedTile;
     public Grid theGrid;
     public SortedList unitIds;
-    public Unit[] friendlyUnits;
-    public Unit[] enemyUnits;
 
-    // Use this for initialization
-    void Start()
-    {
-         
-
-
-       
-    }
-
+	// Use this for initialization
+	void Start () {
+	
+	}
 	
 	// Update is called once per frame
 	void Update () {
-	     
+	
 	}
-   
-
-    public void moveUnit(Vector3 theVector){
-        selectedUnit.moveUnit(theVector);
-    }
 
     public void canMove(){
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;// we need this namespace in order to access UI elements within our script
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class menuScript : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class menuScript : MonoBehaviour
 
     public void StartLevel() //this function will be used on our Play button
     {
-        Application.LoadLevel(2); //this will load our first level from our build settings. "1" is the second scene in our game
+        SceneManager.LoadScene(1); //this will load our first level from our build settings. "1" is the second scene in our game
 
     }
 
