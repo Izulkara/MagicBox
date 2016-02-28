@@ -42,20 +42,21 @@ public class Unit : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+       
 	}
 
     // Update is called once per frame
-    void Update(){
+    public void Update(){
         if (!myVector.Equals(targetVector)){ //if we're not where we should be...
             ratio += Time.deltaTime; //then we should be closer to where we should be.
-            transform.position = Vector3.Lerp(myVector, targetVector, (ratio / distance)); //dividing by the distance ensure the unit moves the same speed.
+            transform.position = Vector3.Lerp(myVector, targetVector, (ratio / distance)); //dividing by the distance ensure the unit moves the same speed.            
         }  // Square rooted the speed at which it moves by dividing it by itself as well.
+
     }
 
     //clicking the unit causes it to move, albeit randomly.
     void OnMouseDown(){
-        theBattleManager.setUnit(id);
+        theBattleManager.selectedUnit = this;
         //System.Random randomMove = new System.Random();
         //float xrand = randomMove.Next(3, 8);
         //float zrand = randomMove.Next(3, 8);
