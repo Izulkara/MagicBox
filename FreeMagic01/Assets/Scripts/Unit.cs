@@ -13,18 +13,22 @@ public class Unit : MonoBehaviour {
 	public int unitDodgeChance;
 	public int unitCriticalStrikeChance;
     public int unitMoveRange;
+    public int unitAttackRange;
     public Vector3 myVector;
     public Vector3 targetVector;
     public float ratio;
     public float distance;
     public Tile occupied;
     public BattleManager theBattleManager;
+    GameObject grid;
+    Grid gridScript;
 
-	public Unit(int identification) 
-		: this (identification, 100, 5, 10, 1, 5, 5, 3) {
+
+    public Unit(int identification) 
+		: this (identification, 100, 5, 10, 1, 5, 5, 3, 1) {
 	}
 
-	public Unit(int identification, int health, int minAttack, int maxAttack, int defense, int dodgeChance, int criticalStrikeChance, int moveRange) {
+	public Unit(int identification, int health, int minAttack, int maxAttack, int defense, int dodgeChance, int criticalStrikeChance, int moveRange, int attackRange) {
         id = identification;
 		isInitialized = true;
 		unitHealth = health;
@@ -35,6 +39,7 @@ public class Unit : MonoBehaviour {
 		unitCriticalStrikeChance = criticalStrikeChance;
 		history = new Stack();
         unitMoveRange = moveRange;
+        unitAttackRange = attackRange;
         myVector = transform.position;// used for positioning.
         targetVector = transform.position;
         ratio = 0; //used for movement.
@@ -42,8 +47,10 @@ public class Unit : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
-	}
+
+        grid = GameObject.Find("Grid");
+        gridScript = grid.GetComponent<Grid>();
+    }
 
     // Update is called once per frame
     void Update(){
@@ -57,32 +64,42 @@ public class Unit : MonoBehaviour {
     }
 
     // Clicking the unit should cause a highlight selection.
-	// Once selected the unit should be deselected if clicked again.
-    void OnMouseDown(){
-		// Get access to the Grid
-		GameObject grid = GameObject.Find ("Grid");
-		Grid gridScript = grid.GetComponent<Grid> ();
+    // Once selected the unit should be deselected if clicked again.
+    void OnMouseDown()
+    {
+        // Get access to the Grid
 
-		// If the a unit is selected, unhighlight and change the unit selected.
-		if (gridScript.isUnitSelected ()) {
-			// Grab the unit currently selected from the Grid
-			Unit curSelected = gridScript.getUnitSelected ();
-			// Unhighlight the currently selected unit
-			curSelected.GetComponent<SpriteRenderer> ().material.color = Color.white;
 
-			// If the new unit selected is not the unit currently selected, select it and highlight it
-			if (!curSelected.Equals (this)) { 
-				gridScript.changeUnitSelected (this);
-				this.GetComponent<SpriteRenderer> ().material.color = Color.green;
-			// Else, we've clicked on the same unit so deselect 
-			} else {
-				gridScript.changeUnitSelected (null);
-			}
-		// Else, no unit is selected so select the unit and change the highlight 
-		} else {
-			gridScript.changeUnitSelected (this);
-			this.GetComponent<SpriteRenderer> ().material.color = Color.green;
-		}
+        if (gridScript.attacking) {
+            gridScript.attemptAttack(myVector, occupied);
+        } else if (gridScript.moving){
+            deselectAfterMovement();
+        } else { 
+            // If the a unit is selected, unhighlight and change the unit selected.
+            if (gridScript.isUnitSelected())
+            {
+                // Grab the unit currently selected from the Grid
+                Unit curSelected = gridScript.getUnitSelected();
+                // Unhighlight the currently selected unit
+                curSelected.GetComponent<SpriteRenderer>().material.color = Color.white;
+
+                // If the new unit selected is not the unit currently selected, select it and highlight it
+                if (!curSelected.Equals(this))
+                {
+                    gridScript.changeUnitSelected(this);
+                    this.GetComponent<SpriteRenderer>().material.color = Color.green;
+                    // Else, we've clicked on the same unit so deselect 
+                }
+                else {
+                    gridScript.changeUnitSelected(null);
+                }
+                // Else, no unit is selected so select the unit and change the highlight 
+            }
+            else {
+                gridScript.changeUnitSelected(this);
+                this.GetComponent<SpriteRenderer>().material.color = Color.green;
+            }
+        }
     }
 		
     //Plots the course for moving.
@@ -109,13 +126,14 @@ public class Unit : MonoBehaviour {
 		occupied = newOccupied;
     }
 
-	void Attack(Unit unit) {
+	public void Attack(Unit unit) {
 		System.Random randomAttack = new System.Random();
 		int attackValue = randomAttack.Next(this.unitMinAttack, (this.unitMinAttack + 1));
-		/**
+        /**
 		 * TODO
 		 * Implement critical strike system.
 		**/
+        deselectAfterAttack();
 		unit.isAttacked(attackValue);
 		this.Update();
 	}
@@ -138,9 +156,14 @@ public class Unit : MonoBehaviour {
 
 	// Helper method to deselect a Unit after a movement has completed. 
 	private void deselectAfterMovement() {
-		GameObject grid = GameObject.Find ("Grid");
-		Grid gridScript = grid.GetComponent<Grid> ();
-		gridScript.getUnitSelected ().GetComponent<SpriteRenderer> ().material.color = Color.white;
-		gridScript.changeUnitSelected (null);
+        gridScript.toggleHighlightMovableTiles();
+        gridScript.moving = false;
+		//gridScript.getUnitSelected ().GetComponent<SpriteRenderer> ().material.color = Color.white;
+		//gridScript.changeUnitSelected (null);
 	}
+
+    // Helper method to deselect the tiles after a unit has attacked.
+    private void deselectAfterAttack(){
+        gridScript.toggleHighlightAttackableTiles();
+    }
 }

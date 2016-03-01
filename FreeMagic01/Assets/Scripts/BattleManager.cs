@@ -18,12 +18,5 @@ public class BattleManager : MonoBehaviour {
 	
 	}
 
-    public void canMove(){
-
-    }
-
-    public void setTile()
-    {
-
-    }
+    
 }

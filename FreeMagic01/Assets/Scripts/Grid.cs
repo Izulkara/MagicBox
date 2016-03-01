@@ -7,11 +7,18 @@ public class Grid : MonoBehaviour {
 	private Tile tileSelected;
 	private Unit unitSelected;
     public BattleManager theBattleManager;
+    public bool moving = false;
+    public bool attacking = false;
+    GameObject moveButton;
+    GameObject attackButton;
+    GameObject waitButton;
 
 	// Use this for initialization
 	void Start ()
     {
-
+        moveButton = GameObject.Find("MoveButton");
+        attackButton = GameObject.Find("AttackButton");
+        waitButton = GameObject.Find("WaitButton");
     }
 	
 	// Update is called once per frame
@@ -29,18 +36,24 @@ public class Grid : MonoBehaviour {
 		float distance = Vector3.Distance (unitSelected.myVector, theVector);
 		print ("Distance: " + distance);
 		// if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
-		if (distance <= unitSelected.unitMoveRange && desiredTileLocation.Occupier == null) {
+		if (distance <= unitSelected.unitMoveRange & desiredTileLocation.Occupier == null & moving) {
 			unitSelected.moveUnit (theVector, desiredTileLocation);
-		// else, we've clicked on a Tile not inside of our moveRange
-		} else {
+            moveButton.SetActive(false);
+            // else, we've clicked on a Tile not inside of our moveRange
+        } else {
 			// TO DO: Relay message to player that move is not acceptable? 
 		} 
 	}
 
-	// Calls Unit's moveUnit method to handle the movement of the Unit.
-	public void moveUnit(Vector3 theVector, Tile newTile){
-		unitSelected.moveUnit(theVector, newTile);
 
+    public void attemptAttack(Vector3 theVector, Tile theTile) {
+        float distance = Vector3.Distance(unitSelected.myVector, theVector);
+
+        if(distance <= unitSelected.unitAttackRange & theTile.Occupier != null)
+        {
+            unitSelected.Attack(theTile.Occupier);
+            attackButton.SetActive(false);
+        }
     }
 		
 	public bool isTileSelected() {
@@ -54,19 +67,34 @@ public class Grid : MonoBehaviour {
 	public void changeUnitSelected(Unit newUnit) {
 		// If we have a Unit selected already, disable its highlighting. 
 		if (unitSelected != null) {
-			toggleHighlightMovableTiles ();
+			//toggleHighlightMovableTiles ();
 		}
 
 		// Change the selected unit to the given new unit.
 		unitSelected = newUnit;
+        attackButton.SetActive(true);
+        moveButton.SetActive(true);
+        waitButton.SetActive(true);
 
 		// Toggle the highlighting of our new selected Unit if it's not null.
 		if (newUnit != null) {
-			toggleHighlightMovableTiles ();
+			//toggleHighlightMovableTiles ();
 		}
 	}
 
-	public Unit getUnitSelected() {
+    //used by wait button to 'end turn'
+    public void deselectUnit(){
+        if (moving) toggleHighlightMovableTiles();
+        if (attacking) toggleHighlightAttackableTiles();
+        attackButton.SetActive(false);
+        moveButton.SetActive(false);
+        waitButton.SetActive(false);
+        unitSelected.GetComponent<SpriteRenderer>().material.color = Color.white;
+        unitSelected = null;
+    }
+
+
+    public Unit getUnitSelected() {
 		return unitSelected;
 	}
 
@@ -79,7 +107,7 @@ public class Grid : MonoBehaviour {
 		// if we have a tile selected, unhighlight the tiles highlighted for movement
 		// and unhighlight the currently selected tile
 		if (tileSelected != null) {
-			tileSelected.toggleTileHighlight ();
+			tileSelected.toggleTileHighlight ("Teal");
 			//toggleHighlightForMovement ();
 		}
 
@@ -92,20 +120,44 @@ public class Grid : MonoBehaviour {
     // Method to toggle the highlight graphic for Tiles that our currently selected
 	// Tile can visit. Includes highlighting of the Tile that the Unit is currently occupying. 
 	public void toggleHighlightMovableTiles() {
-		List<Tile> list = new List<Tile> ();
+        if (attacking) toggleHighlightAttackableTiles();
+        moving = !moving; //toggles boolean for moving.
+        List<Tile> list = new List<Tile> ();
 		explore (unitSelected.unitMoveRange, unitSelected.occupied, list);
 		foreach (Tile t in list) {
-			t.toggleTileHighlight ();
+			t.toggleTileHighlight("Teal");
 		}
+        
 	}
 
-	// Helper method for finding Tiles that we can move to.
-	//
-	// Recursively explores Tiles in the Grid relative to the position of our
-	// currently selected Unit's Tile (the position of the Tile the Unit is standing on). 
-	private void explore(int moves, Tile curTile, List<Tile> list) {
+    // Method to toggle the highlight graphic for Tiles that our currently selected
+    // Tile can visit. Includes highlighting of the Tile that the Unit is currently occupying. 
+    public void toggleHighlightAttackableTiles(){
+        if (moving) toggleHighlightMovableTiles();
+        bool wasAttacking = false;
+        if (!attacking) attacking = !attacking; //if we weren't attacking, we are now.
+        else wasAttacking = true; //if we were attacking we should remember that.
+        List<Tile> list = new List<Tile>();
+        explore(unitSelected.unitAttackRange, unitSelected.occupied, list);
+        foreach (Tile t in list) {
+            t.toggleTileHighlight("Orange");
+        }
+        if (wasAttacking) attacking = false; //if we were attacking we should no longer be.
+        
+        
+    }
+
+    // Helper method for finding Tiles that we can move to.
+    //
+    // Recursively explores Tiles in the Grid relative to the position of our
+    // currently selected Unit's Tile (the position of the Tile the Unit is standing on). 
+    private void explore(int moves, Tile curTile, List<Tile> list) {
 		float dist = Vector3.Distance (curTile.transform.position, unitSelected.occupied.transform.position);
-		if (dist <= unitSelected.unitMoveRange && moves >= 0) {
+        int range;
+        if (attacking) range = unitSelected.unitAttackRange;
+        else range = unitSelected.unitMoveRange;
+
+		if (dist <= range && moves >= 0) {
 			if (!list.Contains (curTile)) { 
 				list.Add (curTile);
 			}
@@ -127,4 +179,6 @@ public class Grid : MonoBehaviour {
 			}
 		}
 	}
+
+
 }
