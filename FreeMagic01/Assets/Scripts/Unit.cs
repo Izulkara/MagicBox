@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public class Unit : MonoBehaviour {
     public int id;
-	public int unitHealth;
+	public float unitHealth;
+    public float unitMaxHealth;
 	public int unitMaxAttack;
 	public int unitMinAttack;
 	public bool isInitialized;
@@ -22,6 +23,9 @@ public class Unit : MonoBehaviour {
     public BattleManager theBattleManager;
     GameObject grid;
     Grid gridScript;
+    private Animator animator;
+    public GameObject attackFX;
+    private GameObject attack;
 
 
     public Unit(int identification) 
@@ -32,6 +36,7 @@ public class Unit : MonoBehaviour {
         id = identification;
 		isInitialized = true;
 		unitHealth = health;
+        unitMaxHealth = health;
 		unitMinAttack = minAttack;
 		unitMaxAttack = maxAttack;
 		unitDefense = defense;
@@ -50,6 +55,7 @@ public class Unit : MonoBehaviour {
 
         grid = GameObject.Find("Grid");
         gridScript = grid.GetComponent<Grid>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -134,7 +140,8 @@ public class Unit : MonoBehaviour {
 		 * Implement critical strike system.
 		**/
         deselectAfterAttack();
-		unit.isAttacked(attackValue);
+        animator.SetTrigger("timeToAttack");
+        unit.isAttacked(attackValue);
 		this.Update();
 	}
 

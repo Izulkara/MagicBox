@@ -12,13 +12,17 @@ public class Grid : MonoBehaviour {
     GameObject moveButton;
     GameObject attackButton;
     GameObject waitButton;
+    GameObject HealthBar;
+    Health health;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
         moveButton = GameObject.Find("MoveButton");
         attackButton = GameObject.Find("AttackButton");
         waitButton = GameObject.Find("WaitButton");
+        HealthBar = GameObject.Find("HealthBar");
+        health = HealthBar.GetComponent<Health>();
     }
 	
 	// Update is called once per frame
@@ -75,6 +79,8 @@ public class Grid : MonoBehaviour {
         attackButton.SetActive(true);
         moveButton.SetActive(true);
         waitButton.SetActive(true);
+        health.updateHealthBar();
+
 
 		// Toggle the highlighting of our new selected Unit if it's not null.
 		if (newUnit != null) {
