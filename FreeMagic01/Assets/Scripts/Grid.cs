@@ -13,7 +13,10 @@ public class Grid : MonoBehaviour {
     GameObject attackButton;
     GameObject waitButton;
     GameObject HealthBar;
-    Health health;
+    GameObject CameraTarget;
+    GameObject HealthBarL;
+    Camera camera;
+    Health healthScript;
 
     // Use this for initialization
     void Start ()
@@ -21,8 +24,10 @@ public class Grid : MonoBehaviour {
         moveButton = GameObject.Find("MoveButton");
         attackButton = GameObject.Find("AttackButton");
         waitButton = GameObject.Find("WaitButton");
-        HealthBar = GameObject.Find("HealthBar");
-        health = HealthBar.GetComponent<Health>();
+        HealthBarL = GameObject.Find("HealthBarL");
+        CameraTarget = GameObject.Find("CameraTarget");
+        healthScript = HealthBarL.GetComponent<Health>();
+        camera = CameraTarget.GetComponent<Camera>();
     }
 	
 	// Update is called once per frame
@@ -79,11 +84,11 @@ public class Grid : MonoBehaviour {
         attackButton.SetActive(true);
         moveButton.SetActive(true);
         waitButton.SetActive(true);
-        health.updateHealthBar();
+        healthScript.updateHealthBar();
 
 
-		// Toggle the highlighting of our new selected Unit if it's not null.
-		if (newUnit != null) {
+        // Toggle the highlighting of our new selected Unit if it's not null.
+        if (newUnit != null) {
 			//toggleHighlightMovableTiles ();
 		}
 	}
@@ -110,12 +115,14 @@ public class Grid : MonoBehaviour {
 
 	// Changes the currently selected tile on the grid 
 	public void changeTileSelected(Tile newSelected) {
-		// if we have a tile selected, unhighlight the tiles highlighted for movement
-		// and unhighlight the currently selected tile
-		if (tileSelected != null) {
-			tileSelected.toggleTileHighlight ("Teal");
-			//toggleHighlightForMovement ();
-		}
+        // if we have a tile selected, unhighlight the tiles highlighted for movement
+        // and unhighlight the currently selected tile
+        //if (tileSelected != null) {
+        //tileSelected.toggleTileHighlight ("Teal");
+        //toggleHighlightForMovement ();
+        //}
+        Vector3 tileVector = new Vector3(newSelected.transform.position.x, 1, newSelected.transform.position.z);
+        camera.move(tileVector);
 
 		// Set the new tile to be the currently selected.
 		// Toggle the highlighting for its movement.

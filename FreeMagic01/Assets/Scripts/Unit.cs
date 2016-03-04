@@ -141,6 +141,8 @@ public class Unit : MonoBehaviour {
 		**/
         deselectAfterAttack();
         animator.SetTrigger("timeToAttack");
+        Destroy(attack);
+        attack = Instantiate(attackFX, new Vector3(unit.transform.position.x - 0.1F, unit.transform.position.y - 0.1F, unit.transform.position.z), this.transform.rotation) as GameObject;
         unit.isAttacked(attackValue);
 		this.Update();
 	}
