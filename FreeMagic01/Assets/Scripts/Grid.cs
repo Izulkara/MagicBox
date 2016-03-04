@@ -15,7 +15,7 @@ public class Grid : MonoBehaviour {
     GameObject HealthBar;
     GameObject CameraTarget;
     GameObject HealthBarL;
-    Camera camera;
+    new Camera camera;
     Health healthScript;
 
     // Use this for initialization
