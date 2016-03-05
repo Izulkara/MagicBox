@@ -17,6 +17,7 @@ public class Grid : MonoBehaviour {
     GameObject HealthBarL;
     new Camera camera;
     Health healthScript;
+    Tile[,] tiles2D;
 
     // Use this for initialization
     void Start ()
@@ -28,10 +29,70 @@ public class Grid : MonoBehaviour {
         CameraTarget = GameObject.Find("CameraTarget");
         healthScript = HealthBarL.GetComponent<Health>();
         camera = CameraTarget.GetComponent<Camera>();
+        initializeGrid();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    private void initializeGrid()
+    {
+        tiles2D = new Tile[10, 10];
+        Tile[] tilesToProcess = gameObject.GetComponentsInChildren<Tile>();
+        GameObject units = GameObject.Find("Units");
+        Unit[] unitsToProcess = units.GetComponentsInChildren<Unit>();
+
+        print(unitsToProcess[0] + "  Good");
+
+        foreach (Tile t in tilesToProcess)
+        {
+            tiles2D[(int)t.transform.localPosition.x, (int)t.transform.localPosition.z] = t;
+        }
+
+
+
+        for (int x = 0; x < 10; x++)
+        {
+            for (int z = 0; z < 10; z++)
+            {
+                if (tiles2D[x, z] != null)
+                {
+                    int north = z + 1;
+                    int south = z - 1;
+                    int east = x + 1;
+                    int west = x - 1;
+
+                    if (north >= 0 && north <= 9 && tiles2D[x, north] != null)
+                    {
+                        tiles2D[x, z].NorthTile = tiles2D[x, north];
+                    }
+                    if (south >= 0 && south <= 9 && tiles2D[x, south] != null)
+                    {
+                        tiles2D[x, z].SouthTile = tiles2D[x, south];
+                    }
+                    if (west >= 0 && west <= 9 && (tiles2D[west, z] != null))
+                    {
+                        tiles2D[x, z].WestTile = tiles2D[west, z];
+                    }
+                    if (east >= 0 && east <= 9 && (tiles2D[east, z] != null))
+                    {
+                        tiles2D[x, z].EastTile = tiles2D[east, z];
+                    }
+                }
+
+            }
+        }
+
+        foreach (Unit u in unitsToProcess)
+        {
+            int unitX = (int)u.transform.localPosition.x;
+            int unitZ = (int)u.transform.localPosition.z;
+
+            u.occupied = tiles2D[unitX, unitZ];
+            tiles2D[unitX, unitZ].Occupier = u;
+
+        }
+    }
+
+        // Update is called once per frame
+        void Update ()
     {
 
     }
