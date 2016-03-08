@@ -92,6 +92,8 @@ public class Grid : MonoBehaviour {
         float distance;
         float x = unitSelected.myVector.x - theVector.x;
         float z = unitSelected.myVector.z - theVector.z;
+        x = Mathf.Abs(x);
+        z = Mathf.Abs(z);
         distance = x + z;
 		print ("Distance: " + distance);
 		// if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
@@ -109,6 +111,8 @@ public class Grid : MonoBehaviour {
         float distance;
         float x = unitSelected.myVector.x - theVector.x;
         float z = unitSelected.myVector.z - theVector.z;
+        x = Mathf.Abs(x);
+        z = Mathf.Abs(z);
         distance = x + z;
 
         if (distance <= unitSelected.unitAttackRange & theTile.Occupier != null)
@@ -138,6 +142,7 @@ public class Grid : MonoBehaviour {
         moveButton.SetActive(!unitSelected.hasMovedOnThisTurn);
         waitButton.SetActive(true);
         healthScript.updateHealthBar();
+        camera.move(newUnit.myVector);
 
 
         // Toggle the highlighting of our new selected Unit if it's not null.
@@ -175,8 +180,12 @@ public class Grid : MonoBehaviour {
         //toggleHighlightForMovement ();
         //}
         Vector3 tileVector = new Vector3(newSelected.transform.position.x, 1, newSelected.transform.position.z);
-        camera.move(tileVector);
 
+        if(!this.isUnitSelected())
+        {
+            camera.move(tileVector);
+        }
+        
 		// Set the new tile to be the currently selected.
 		// Toggle the highlighting for its movement.
 		tileSelected = newSelected;
@@ -221,6 +230,8 @@ public class Grid : MonoBehaviour {
         float dist;
         float x = curTile.transform.position.x - unitSelected.occupied.transform.position.x;
         float z = curTile.transform.position.z - unitSelected.occupied.transform.position.z;
+        x = Mathf.Abs(x);
+        z = Mathf.Abs(z);
         dist = x + z;
 
         int range;

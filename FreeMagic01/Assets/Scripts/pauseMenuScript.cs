@@ -82,6 +82,12 @@ public class pauseMenuScript : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public void PauseMenuRestartGame()
+    {
+        togglePause();
+        SceneManager.LoadScene(1);
+    }
+
     // Update is called once per frame
     void Update()
     {
