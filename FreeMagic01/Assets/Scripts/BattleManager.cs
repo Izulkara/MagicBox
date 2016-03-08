@@ -36,6 +36,10 @@ public class BattleManager : MonoBehaviour {
 	}
 
 	public void endPlayerTurn() {
+        if(theGrid.isUnitSelected())
+        {
+            theGrid.deselectUnit();
+        }
 		isPlayerTurn = false;
 		executeAITurn ();
 		foreach (Unit u in friendlyUnits) {
