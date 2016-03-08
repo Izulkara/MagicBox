@@ -28,6 +28,8 @@ public class Unit : MonoBehaviour
     private GameObject attack;
     public bool hasAttackedOnThisTurn;
     public bool hasMovedOnThisTurn;
+    public Health healthScript;
+    public GameObject HealthBarR;
 
 
     public Unit(int identification)
@@ -52,6 +54,7 @@ public class Unit : MonoBehaviour
         myVector = transform.position;// used for positioning.
         targetVector = transform.position;
         ratio = 0; //used for movement.
+        healthScript = HealthBarR.GetComponent<Health>();
     }
 
     // Use this for initialization
@@ -120,6 +123,8 @@ public class Unit : MonoBehaviour
 
         // Updates the Unit's field for the Tile that it is occupying. 
         occupied = newOccupied;
+
+        hasMovedOnThisTurn = true;
     }
 
     public void moveEnemyUnit(Vector3 theVector, Tile newOccupied)
@@ -166,6 +171,11 @@ public class Unit : MonoBehaviour
         Destroy(attack);
         attack = Instantiate(attackFX, new Vector3(unit.transform.position.x - 0.1F, unit.transform.position.y - 0.1F, unit.transform.position.z), this.transform.rotation) as GameObject;
         unit.isAttacked(attackValue);
+        if (unit.name.Equals("Samuel") || unit.name.Equals("Marshall"))
+        {
+            HealthBarR.GetComponent<Health>().updateEnemyHealthBar(unit);
+        }
+        hasAttackedOnThisTurn = true;
         this.Update();
     }
 
@@ -186,7 +196,7 @@ public class Unit : MonoBehaviour
         attackValue = attackValue - this.unitDefense;
         this.unitHealth = this.unitHealth - attackValue;
 
-        if(theBattleManager.enemyUnits.Contains(this))
+        if (theBattleManager.enemyUnits.Contains(this))
         {
             if (this.unitHealth <= 0)
             {

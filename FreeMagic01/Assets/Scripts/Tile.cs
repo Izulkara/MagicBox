@@ -59,7 +59,7 @@ public class Tile : MonoBehaviour {
             if(gridScript.moving)
 			    gridScript.attemptMove (new Vector3 (transform.position.x, height, transform.position.z), this);
             if (gridScript.attacking)
-                gridScript.attemptAttack(new Vector3(transform.position.x, 1, transform.position.z), this);
+                gridScript.attemptAttack(new Vector3(transform.position.x, height, transform.position.z), this);
 		}
 	}
 

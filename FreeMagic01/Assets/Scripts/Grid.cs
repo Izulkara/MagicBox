@@ -17,7 +17,6 @@ public class Grid : MonoBehaviour {
     GameObject HealthBarL;
     new Camera camera;
     Health healthScript;
-    Tile[,] tiles2D;
 
     // Use this for initialization
     void Start ()
@@ -31,26 +30,29 @@ public class Grid : MonoBehaviour {
         camera = CameraTarget.GetComponent<Camera>();
         initializeGrid();
     }
+	
+	// Update is called once per frame
+	void Update ()
+    {
 
+    }
+
+    //initializeGrid is used for establishing the tile network.
     private void initializeGrid()
     {
-        tiles2D = new Tile[10, 10];
-        Tile[] tilesToProcess = gameObject.GetComponentsInChildren<Tile>();
-        GameObject units = GameObject.Find("Units");
-        Unit[] unitsToProcess = units.GetComponentsInChildren<Unit>();
 
-        print(unitsToProcess[0] + "  Good");
+        int mapSize = 50;
+        Tile[,] tiles2D = new Tile[mapSize, mapSize];
+        Tile[] tilesToProcess = gameObject.GetComponentsInChildren<Tile>();
 
         foreach (Tile t in tilesToProcess)
         {
             tiles2D[(int)t.transform.localPosition.x, (int)t.transform.localPosition.z] = t;
         }
 
-
-
-        for (int x = 0; x < 10; x++)
+        for (int x = 0; x < mapSize; x++)
         {
-            for (int z = 0; z < 10; z++)
+            for (int z = 0; z < mapSize; z++)
             {
                 if (tiles2D[x, z] != null)
                 {
@@ -59,51 +61,38 @@ public class Grid : MonoBehaviour {
                     int east = x + 1;
                     int west = x - 1;
 
-                    if (north >= 0 && north <= 9 && tiles2D[x, north] != null)
+                    if (north >= 0 && north <= (mapSize -1) && tiles2D[x, north] != null)
                     {
                         tiles2D[x, z].NorthTile = tiles2D[x, north];
                     }
-                    if (south >= 0 && south <= 9 && tiles2D[x, south] != null)
+                    if (south >= 0 && south <= (mapSize - 1) && tiles2D[x, south] != null)
                     {
                         tiles2D[x, z].SouthTile = tiles2D[x, south];
                     }
-                    if (west >= 0 && west <= 9 && (tiles2D[west, z] != null))
+                    if (west >= 0 && west <= (mapSize - 1) && (tiles2D[west, z] != null))
                     {
                         tiles2D[x, z].WestTile = tiles2D[west, z];
                     }
-                    if (east >= 0 && east <= 9 && (tiles2D[east, z] != null))
+                    if (east >= 0 && east <= (mapSize - 1) && (tiles2D[east, z] != null))
                     {
+                        //print(x + " " + z);
                         tiles2D[x, z].EastTile = tiles2D[east, z];
                     }
                 }
-
             }
         }
-
-        foreach (Unit u in unitsToProcess)
-        {
-            int unitX = (int)u.transform.localPosition.x;
-            int unitZ = (int)u.transform.localPosition.z;
-
-            u.occupied = tiles2D[unitX, unitZ];
-            tiles2D[unitX, unitZ].Occupier = u;
-
-        }
     }
 
-        // Update is called once per frame
-        void Update ()
-    {
-
-    }
-
-	// Attempts to move a Unit to the given desiredTileLocation.
-	// 
-	// Determines whether the Unit can be moved based on the distance of the Unit's Tile position
-	// relative to the desiredTileLocation's position. If the distance is less than or equal to the 
-	// Unit's move range then the move is executed. 
-	public void attemptMove(Vector3 theVector, Tile desiredTileLocation) {
-		float distance = Vector3.Distance (unitSelected.myVector, theVector);
+    // Attempts to move a Unit to the given desiredTileLocation.
+    // 
+    // Determines whether the Unit can be moved based on the distance of the Unit's Tile position
+    // relative to the desiredTileLocation's position. If the distance is less than or equal to the 
+    // Unit's move range then the move is executed. 
+    public void attemptMove(Vector3 theVector, Tile desiredTileLocation) {
+        float distance;
+        float x = unitSelected.myVector.x - theVector.x;
+        float z = unitSelected.myVector.z - theVector.z;
+        distance = x + z;
 		print ("Distance: " + distance);
 		// if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
 		if (distance <= unitSelected.unitMoveRange & desiredTileLocation.Occupier == null & moving) {
@@ -117,9 +106,12 @@ public class Grid : MonoBehaviour {
 
 
     public void attemptAttack(Vector3 theVector, Tile theTile) {
-        float distance = Vector3.Distance(unitSelected.myVector, theVector);
+        float distance;
+        float x = unitSelected.myVector.x - theVector.x;
+        float z = unitSelected.myVector.z - theVector.z;
+        distance = x + z;
 
-        if(distance <= unitSelected.unitAttackRange & theTile.Occupier != null)
+        if (distance <= unitSelected.unitAttackRange & theTile.Occupier != null)
         {
             unitSelected.Attack(theTile.Occupier);
             attackButton.SetActive(false);
@@ -142,8 +134,8 @@ public class Grid : MonoBehaviour {
 
 		// Change the selected unit to the given new unit.
 		unitSelected = newUnit;
-        attackButton.SetActive(true);
-        moveButton.SetActive(true);
+        attackButton.SetActive(!unitSelected.hasAttackedOnThisTurn);
+        moveButton.SetActive(!unitSelected.hasMovedOnThisTurn);
         waitButton.SetActive(true);
         healthScript.updateHealthBar();
 
@@ -226,7 +218,11 @@ public class Grid : MonoBehaviour {
     // Recursively explores Tiles in the Grid relative to the position of our
     // currently selected Unit's Tile (the position of the Tile the Unit is standing on). 
     private void explore(int moves, Tile curTile, List<Tile> list) {
-		float dist = Vector3.Distance (curTile.transform.position, unitSelected.occupied.transform.position);
+        float dist;
+        float x = curTile.transform.position.x - unitSelected.occupied.transform.position.x;
+        float z = curTile.transform.position.z - unitSelected.occupied.transform.position.z;
+        dist = x + z;
+
         int range;
         if (attacking) range = unitSelected.unitAttackRange;
         else range = unitSelected.unitMoveRange;

@@ -50,7 +50,7 @@ public class BattleManager : MonoBehaviour {
 			Tile t = findMovableTile (u);
 
 			if (t.Occupier == null) {
-				u.moveEnemyUnit (new Vector3 (t.transform.position.x, 1, t.transform.position.z), t);
+				u.moveEnemyUnit (new Vector3 (t.transform.position.x, t.height, t.transform.position.z), t);
 			} else {
 				Unit occupied = t.Occupier;
 				if (occupied.teamID == 1) {
