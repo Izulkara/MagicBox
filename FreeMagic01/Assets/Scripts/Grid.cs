@@ -144,7 +144,6 @@ public class Grid : MonoBehaviour {
         healthScript.updateHealthBar();
         camera.move(newUnit.myVector);
 
-
         // Toggle the highlighting of our new selected Unit if it's not null.
         if (newUnit != null) {
 			//toggleHighlightMovableTiles ();
@@ -185,10 +184,9 @@ public class Grid : MonoBehaviour {
         {
             camera.move(tileVector);
         }
-        
-		// Set the new tile to be the currently selected.
-		// Toggle the highlighting for its movement.
-		tileSelected = newSelected;
+        // Set the new tile to be the currently selected.
+        // Toggle the highlighting for its movement.
+        tileSelected = newSelected;
 		//toggleHighlightForMovement ();
 	}
 

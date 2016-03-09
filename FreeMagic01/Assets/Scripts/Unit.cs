@@ -155,6 +155,7 @@ public class Unit : MonoBehaviour
         Destroy(attack);
         attack = Instantiate(attackFX, new Vector3(unit.transform.position.x - 0.1F, unit.transform.position.y - 0.1F, unit.transform.position.z), this.transform.rotation) as GameObject;
         unit.isAttacked(attackValue);
+		HealthBarR.GetComponent<Health> ().updateHealthBar (this);
         this.Update();
     }
 
@@ -171,10 +172,7 @@ public class Unit : MonoBehaviour
         Destroy(attack);
         attack = Instantiate(attackFX, new Vector3(unit.transform.position.x - 0.1F, unit.transform.position.y - 0.1F, unit.transform.position.z), this.transform.rotation) as GameObject;
         unit.isAttacked(attackValue);
-        if (unit.name.Equals("Samuel") || unit.name.Equals("Marshall"))
-        {
-            HealthBarR.GetComponent<Health>().updateEnemyHealthBar(unit);
-        }
+		HealthBarR.GetComponent<Health> ().updateHealthBar (unit);
         hasAttackedOnThisTurn = true;
         this.Update();
     }
@@ -201,7 +199,8 @@ public class Unit : MonoBehaviour
             if (this.unitHealth <= 0)
             {
                 theBattleManager.enemyUnits.Remove(this);
-                Destroy(this.gameObject);
+				Destroy(this.gameObject);
+				HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
                 checkGameOver();
             }
         }
@@ -211,6 +210,7 @@ public class Unit : MonoBehaviour
             {
                 theBattleManager.friendlyUnits.Remove(this);
                 Destroy(this.gameObject);
+				HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
                 checkGameOver();
             }
         }
