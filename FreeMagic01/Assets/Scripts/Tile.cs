@@ -18,7 +18,7 @@ public class Tile : MonoBehaviour {
     void Start () {
         grid = GameObject.Find("Grid");
         gridScript = grid.GetComponent<Grid>();
-        height = transform.position.y + 1;
+        height += transform.position.y + 1;
     }
 	
 	// Update is called once per frame

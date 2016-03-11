@@ -95,9 +95,12 @@ public class Grid : MonoBehaviour {
         x = Mathf.Abs(x);
         z = Mathf.Abs(z);
         distance = x + z;
-		print ("Distance: " + distance);
-		// if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
-		if (distance <= unitSelected.unitMoveRange & desiredTileLocation.Occupier == null & moving) {
+        if (unitSelected.teamID == 0)
+        {
+
+        }
+        // if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
+        else if (distance <= unitSelected.unitMoveRange & desiredTileLocation.Occupier == null & moving) {
 			unitSelected.moveUnit (theVector, desiredTileLocation);
             moveButton.SetActive(false);
             // else, we've clicked on a Tile not inside of our moveRange
@@ -115,7 +118,11 @@ public class Grid : MonoBehaviour {
         z = Mathf.Abs(z);
         distance = x + z;
 
-        if (distance <= unitSelected.unitAttackRange & theTile.Occupier != null)
+        if(unitSelected.teamID == 0)
+        {
+
+        }
+        else if (distance <= unitSelected.unitAttackRange && theTile.Occupier != null && theTile.Occupier.teamID == 0)
         {
             unitSelected.Attack(theTile.Occupier);
             attackButton.SetActive(false);

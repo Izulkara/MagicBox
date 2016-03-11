@@ -30,7 +30,8 @@ public class Unit : MonoBehaviour
     public bool hasMovedOnThisTurn;
     public Health healthScript;
     public GameObject HealthBarR;
-
+    public bool needsEffects;
+    public Unit target;
 
     public Unit(int identification)
         : this(identification, 100, 5, 10, 1, 5, 5, 3, 1)
@@ -55,11 +56,14 @@ public class Unit : MonoBehaviour
         targetVector = transform.position;
         ratio = 0; //used for movement.
         healthScript = HealthBarR.GetComponent<Health>();
+        
+
     }
 
     // Use this for initialization
     void Start()
     {
+        needsEffects = false;
         hasAttackedOnThisTurn = false;
         hasMovedOnThisTurn = false;
         theBattleManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<BattleManager>();
@@ -84,6 +88,12 @@ public class Unit : MonoBehaviour
             if (transform.position.Equals(targetVector))
             {
                 myVector = targetVector;
+                if (needsEffects){
+                    needsEffects = false;
+                    Destroy(attack);
+                    attack = Instantiate(attackFX, new Vector3(target.transform.position.x - 0.1F,
+                        target.transform.position.y - 0.1F, target.transform.position.z), this.transform.rotation) as GameObject;
+                }
             }
         }  // Square rooted the speed at which it moves by dividing it by itself as well.
     }
@@ -149,24 +159,35 @@ public class Unit : MonoBehaviour
 
     public void EnemyAttack(Unit unit)
     {
+        target = unit;
         System.Random randomAttack = new System.Random();
-        int attackValue = randomAttack.Next(this.unitMinAttack, (this.unitMinAttack + 1));
-        animator.SetTrigger("timeToAttack");
-        Destroy(attack);
-        attack = Instantiate(attackFX, new Vector3(unit.transform.position.x - 0.1F, unit.transform.position.y - 0.1F, unit.transform.position.z), this.transform.rotation) as GameObject;
+        int attackValue = randomAttack.Next(this.unitMinAttack, this.unitMaxAttack);
+
+        int critResult = Random.Range(0, 100);
+        if (critResult <= this.unitCriticalStrikeChance)
+        {
+            attackValue = attackValue * 2;
+        }
+
+        needsEffects = true;
         unit.isAttacked(attackValue);
 		HealthBarR.GetComponent<Health> ().updateHealthBar (this);
+        //
         this.Update();
+        animator.SetTrigger("timeToAttack");
     }
 
     public void Attack(Unit unit)
     {
         System.Random randomAttack = new System.Random();
-        int attackValue = randomAttack.Next(this.unitMinAttack, (this.unitMinAttack + 1));
-        /**
-		 * TODO
-		 * Implement critical strike system.
-		**/
+        int attackValue = randomAttack.Next(this.unitMinAttack, this.unitMaxAttack);
+
+        int critResult = Random.Range(0, 100);
+        if(critResult <= this.unitCriticalStrikeChance)
+        {
+            attackValue = attackValue * 2;
+        }
+
         deselectAfterAttack();
         animator.SetTrigger("timeToAttack");
         Destroy(attack);
@@ -187,13 +208,16 @@ public class Unit : MonoBehaviour
 	}*/
     void isAttacked(int attackValue)
     {
-        //TODO 
-        /**
-		 * Implement dodging system.
-		**/
         attackValue = attackValue - this.unitDefense;
-        this.unitHealth = this.unitHealth - attackValue;
 
+        int dodgeResult = Random.Range(0, 100);
+        if (dodgeResult <= this.unitDodgeChance)
+        {
+            attackValue = 0;
+        }
+
+        this.unitHealth = this.unitHealth - attackValue;
+        
         if (theBattleManager.enemyUnits.Contains(this))
         {
             if (this.unitHealth <= 0)
@@ -268,7 +292,7 @@ public class Unit : MonoBehaviour
             // Else handles the selection code.
 
             // Only allow selection if it is on the friendly team.
-            if (this.teamID == 1)
+            if (this.teamID == 1 || this.teamID == 0)
             {
                 selectionHelper();
             }
