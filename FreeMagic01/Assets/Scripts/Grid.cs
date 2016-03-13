@@ -12,6 +12,7 @@ public class Grid : MonoBehaviour {
     GameObject moveButton;
     GameObject attackButton;
     GameObject waitButton;
+    public GameObject endTurnButton;
     GameObject HealthBar;
     GameObject CameraTarget;
     GameObject HealthBarL;
@@ -24,11 +25,15 @@ public class Grid : MonoBehaviour {
         moveButton = GameObject.Find("MoveButton");
         attackButton = GameObject.Find("AttackButton");
         waitButton = GameObject.Find("WaitButton");
+        endTurnButton = GameObject.Find("EndTurnButton");
         HealthBarL = GameObject.Find("HealthBarL");
         CameraTarget = GameObject.Find("CameraTarget");
         healthScript = HealthBarL.GetComponent<Health>();
         camera = CameraTarget.GetComponent<Camera>();
         initializeGrid();
+        attackButton.SetActive(false);
+        moveButton.SetActive(false);
+        waitButton.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -44,9 +49,12 @@ public class Grid : MonoBehaviour {
         int mapSize = 50;
         Tile[,] tiles2D = new Tile[mapSize, mapSize];
         Tile[] tilesToProcess = gameObject.GetComponentsInChildren<Tile>();
+        GameObject unitsObject = GameObject.Find("Units");
+        Unit[] units = unitsObject.GetComponentsInChildren<Unit>();
 
         foreach (Tile t in tilesToProcess)
         {
+            t.Occupier = null;
             tiles2D[(int)t.transform.localPosition.x, (int)t.transform.localPosition.z] = t;
         }
 
@@ -81,6 +89,12 @@ public class Grid : MonoBehaviour {
                 }
             }
         }
+        foreach (Unit u in units)
+        {
+            tiles2D[(int)u.myVector.x, (int)u.myVector.z].Occupier = u;
+            u.occupied = tiles2D[(int)u.myVector.x, (int)u.myVector.z];
+
+        }
     }
 
     // Attempts to move a Unit to the given desiredTileLocation.
@@ -100,7 +114,8 @@ public class Grid : MonoBehaviour {
 
         }
         // if the distance of the Tile we clicked on is less than or equal to our moveRange, then move
-        else if (distance <= unitSelected.unitMoveRange & desiredTileLocation.Occupier == null & moving) {
+        else if (desiredTileLocation.TileHighlight.activeSelf && moving && desiredTileLocation.Occupier == null)
+        {
 			unitSelected.moveUnit (theVector, desiredTileLocation);
             moveButton.SetActive(false);
             // else, we've clicked on a Tile not inside of our moveRange
@@ -122,7 +137,7 @@ public class Grid : MonoBehaviour {
         {
 
         }
-        else if (distance <= unitSelected.unitAttackRange && theTile.Occupier != null && theTile.Occupier.teamID == 0)
+        else if (theTile.TileHighlight.activeSelf && theTile.Occupier != null && theTile.Occupier.teamID == 0)
         {
             unitSelected.Attack(theTile.Occupier);
             attackButton.SetActive(false);
@@ -231,7 +246,8 @@ public class Grid : MonoBehaviour {
     //
     // Recursively explores Tiles in the Grid relative to the position of our
     // currently selected Unit's Tile (the position of the Tile the Unit is standing on). 
-    private void explore(int moves, Tile curTile, List<Tile> list) {
+    private void explore(int moves, Tile curTile, List<Tile> list)
+    {
         float dist;
         float x = curTile.transform.position.x - unitSelected.occupied.transform.position.x;
         float z = curTile.transform.position.z - unitSelected.occupied.transform.position.z;
@@ -240,31 +256,70 @@ public class Grid : MonoBehaviour {
         dist = x + z;
 
         int range;
-        if (attacking) range = unitSelected.unitAttackRange;
-        else range = unitSelected.unitMoveRange;
+        if (attacking)
+        {
+            range = unitSelected.unitAttackRange;
+            if (dist <= range && moves >= 0)
+            {
+                if (!list.Contains(curTile))
+                {
+                    list.Add(curTile);
+                }
 
-		if (dist <= range && moves >= 0) {
-			if (!list.Contains (curTile)) { 
-				list.Add (curTile);
-			}
+                if (curTile.NorthTile != null)
+                {
+                    explore(moves - 1, curTile.NorthTile, list);
+                }
 
-			if (curTile.NorthTile != null) {
-				explore (moves - 1, curTile.NorthTile, list);
-			}
+                if (curTile.SouthTile != null)
+                {
+                    explore(moves - 1, curTile.SouthTile, list);
+                }
 
-			if (curTile.SouthTile != null) {
-				explore (moves - 1, curTile.SouthTile, list);
-			}
+                if (curTile.EastTile != null)
+                {
+                    explore(moves - 1, curTile.EastTile, list);
+                }
 
-			if (curTile.EastTile != null) {
-				explore (moves - 1, curTile.EastTile, list);
-			}
+                if (curTile.WestTile != null)
+                {
+                    explore(moves - 1, curTile.WestTile, list);
+                }
+            }
+        }
+        else
+        {
+            range = unitSelected.unitMoveRange;
 
-			if (curTile.WestTile != null) {
-				explore (moves - 1, curTile.WestTile, list);
-			}
-		}
-	}
+            if (dist <= range && moves >= 0)
+            {
+                if (!list.Contains(curTile))
+                {
+                    list.Add(curTile);
+                }
+
+                if (curTile.NorthTile != null && (curTile.NorthTile.Occupier == null || curTile.NorthTile.Occupier.teamID == 1))
+                {
+                    explore(moves - 1, curTile.NorthTile, list);
+                }
+
+                if (curTile.SouthTile != null && (curTile.SouthTile.Occupier == null || curTile.SouthTile.Occupier.teamID == 1))
+                {
+                    explore(moves - 1, curTile.SouthTile, list);
+                }
+
+                if (curTile.EastTile != null && (curTile.EastTile.Occupier == null || curTile.EastTile.Occupier.teamID == 1))
+                {
+                    explore(moves - 1, curTile.EastTile, list);
+                }
+
+                if (curTile.WestTile != null && (curTile.WestTile.Occupier == null || curTile.WestTile.Occupier.teamID == 1))
+                {
+                    explore(moves - 1, curTile.WestTile, list);
+                }
+            }
+        }
+    }
 
 
 }

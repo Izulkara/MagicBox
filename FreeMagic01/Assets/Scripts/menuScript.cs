@@ -6,16 +6,18 @@ using UnityEngine.SceneManagement;
 public class menuScript : MonoBehaviour
 {
     public Canvas quitMenu;
+    public Canvas instructionMenu;
     public Button startText;
     public Button exitText;
 
     void Start()
     {
         quitMenu = quitMenu.GetComponent<Canvas>();
+        instructionMenu = instructionMenu.GetComponent<Canvas>();
         startText = startText.GetComponent<Button>();
         exitText = exitText.GetComponent<Button>();
         quitMenu.enabled = false;
-
+        instructionMenu.enabled = false;
     }
 
     public void ExitPress() //this function will be used on our Exit button
@@ -32,6 +34,20 @@ public class menuScript : MonoBehaviour
         startText.enabled = true; //enable the Play and Exit buttons again so they can be clicked
         exitText.enabled = true;
 
+    }
+
+    public void InstructionPress()
+    {
+        instructionMenu.enabled = true;
+        startText.enabled = false;
+        exitText.enabled = false;
+    }
+
+    public void ClosePress()
+    {
+        instructionMenu.enabled = false;
+        startText.enabled = true;
+        exitText.enabled = true;
     }
 
     public void StartLevel() //this function will be used on our Play button
