@@ -9,11 +9,15 @@ public class pauseMenuScript : MonoBehaviour
     public Canvas quitMenu;
     public Canvas winMenu;
     public Canvas loseMenu;
+    public Canvas instructionMenu;
     public Button startText;
     public Button exitText;
+    public Button instructionText;
+    public Button restartText;
     bool showing;
     BattleManager theManager;
     public Canvas uiCanvas;
+    new Camera camera;
 
     // Use this for initialization
     void Start()
@@ -22,13 +26,16 @@ public class pauseMenuScript : MonoBehaviour
         quitMenu = quitMenu.GetComponent<Canvas>();
         startText = startText.GetComponent<Button>();
         exitText = exitText.GetComponent<Button>();
+        restartText = restartText.GetComponent<Button>();
+        instructionText = instructionText.GetComponent<Button>();
         uiCanvas = uiCanvas.GetComponent<Canvas>();
+        instructionMenu = instructionMenu.GetComponent<Canvas>();
         quitMenu.enabled = false;
         winMenu.enabled = false;
         loseMenu.enabled = false;
         uiCanvas.enabled = true;
+        instructionMenu.enabled = false;
         menu.SetActive(showing);
-
     }
 
     public void ExitPress()
@@ -43,6 +50,24 @@ public class pauseMenuScript : MonoBehaviour
         quitMenu.enabled = false;
         startText.enabled = true;
         exitText.enabled = true;
+    }
+
+    public void InstrutionPress()
+    {
+        instructionMenu.enabled = true;
+        startText.enabled = false;
+        restartText.enabled = false;
+        exitText.enabled = false;
+        instructionText.enabled = false;
+    }
+
+    public void ClosePress()
+    {
+        instructionMenu.enabled = false;
+        startText.enabled = true;
+        restartText.enabled = true;
+        exitText.enabled = true;
+        instructionText.enabled = true;
     }
 
     public void EndTurn()
@@ -94,6 +119,10 @@ public class pauseMenuScript : MonoBehaviour
     {
         if (Input.GetKeyDown("escape"))
         {
+            if (instructionMenu.isActiveAndEnabled == true)
+            {
+                instructionMenu.enabled = false;
+            }
             togglePause();
             showing = !showing;
             menu.SetActive(showing);
