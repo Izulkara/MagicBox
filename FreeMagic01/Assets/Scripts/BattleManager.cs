@@ -14,12 +14,18 @@ public class BattleManager : MonoBehaviour {
 	public List<Unit> friendlyUnits;
 	public bool isPlayerTurn;
     public float ratio;
+    public bool angleView;
+    public GameObject Camera;
+    public Camera CameraTarget;
 
 	// Use this for initialization
 	void Start () {
 		isPlayerTurn = true;
 		enemyUnits = new List<Unit> ();
 		friendlyUnits = new List<Unit> ();
+        angleView = true;
+        Camera = GameObject.Find("CameraTarget");
+        CameraTarget = Camera.GetComponent<Camera>();
 
 		Unit[] findUnits = GameObject.FindObjectsOfType<Unit> ();
 		for (int x = 0; x < findUnits.Length; x++) {
@@ -36,12 +42,47 @@ public class BattleManager : MonoBehaviour {
 
     }
 
+    public void togglePerspective()
+    {
+        foreach(Unit u in friendlyUnits)
+        {
+            if (angleView)
+            {
+                u.setRotation(Quaternion.Euler(90, 90, 0));
+            } else
+            {
+                u.setRotation(Quaternion.Euler(30, 45, 0));
+            }
+        }
+        foreach(Unit u in enemyUnits)
+        {
+            if (angleView)
+            {
+                u.setRotation(Quaternion.Euler(90, 90, 0));
+            }
+            else
+            {
+                u.setRotation(Quaternion.Euler(30, 45, 0));
+            }
+        }
+        if (angleView)
+        {
+            CameraTarget.setRotation(Quaternion.Euler(90, 90, 0));
+            angleView = false;
+        }
+        else
+        {
+            CameraTarget.setRotation(Quaternion.Euler(30, 45, 0));
+            angleView = true;
+        }
+    }
+
 	public void endPlayerTurn() {
-        if(theGrid.isUnitSelected())
+        if (theGrid.isUnitSelected())
         {
             theGrid.deselectUnit();
         }
-		isPlayerTurn = false;
+        isPlayerTurn = false;
 		executeAITurn ();
 		foreach (Unit u in friendlyUnits) {
 			u.hasMovedOnThisTurn = false;
@@ -151,22 +192,22 @@ public class BattleManager : MonoBehaviour {
                 list.Add(curTile);
             }
 
-            if (curTile.NorthTile != null)
+            if (curTile.NorthTile != null && (curTile.NorthTile.Occupier == null || curTile.NorthTile.Occupier.teamID == 0))
             {
                 explore(u, moves - 1, curTile.NorthTile, list);
             }
 
-            if (curTile.SouthTile != null)
+            if (curTile.SouthTile != null && (curTile.SouthTile.Occupier == null || curTile.SouthTile.Occupier.teamID == 0))
             {
                 explore(u, moves - 1, curTile.SouthTile, list);
             }
 
-            if (curTile.EastTile != null)
+            if (curTile.EastTile != null && (curTile.EastTile.Occupier == null || curTile.EastTile.Occupier.teamID == 0))
             {
                 explore(u, moves - 1, curTile.EastTile, list);
             }
 
-            if (curTile.WestTile != null)
+            if (curTile.WestTile != null && (curTile.WestTile.Occupier == null || curTile.WestTile.Occupier.teamID == 0))
             {
                 explore(u, moves - 1, curTile.WestTile, list);
             }
