@@ -137,7 +137,7 @@ public class Grid : MonoBehaviour {
         {
 
         }
-        else if (theTile.TileHighlight.activeSelf && theTile.Occupier.teamID == 0)
+        else if (theTile.TileHighlight.activeSelf && theTile.Occupier != null && theTile.Occupier.teamID == 0)
         {
             unitSelected.Attack(theTile.Occupier);
             attackButton.SetActive(false);
