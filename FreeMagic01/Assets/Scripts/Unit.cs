@@ -32,6 +32,8 @@ public class Unit : MonoBehaviour
     public GameObject HealthBarR;
     public bool needsEffects;
     public Unit target;
+    GameObject battleLog;
+    public BattleLog log;
 
     public Unit(int identification)
         : this(identification, 100, 5, 10, 1, 5, 5, 3, 1)
@@ -56,7 +58,8 @@ public class Unit : MonoBehaviour
         targetVector = transform.position;
         ratio = 0; //used for movement.
         healthScript = HealthBarR.GetComponent<Health>();
-        
+        battleLog = GameObject.Find("BattleLog");
+        log = battleLog.GetComponent<BattleLog>();
 
     }
 
@@ -162,11 +165,12 @@ public class Unit : MonoBehaviour
         target = unit;
         System.Random randomAttack = new System.Random();
         int attackValue = randomAttack.Next(this.unitMinAttack, this.unitMaxAttack);
-
+        bool isCrit = false;
         int critResult = Random.Range(0, 100);
         if (critResult <= this.unitCriticalStrikeChance)
         {
             attackValue = attackValue * 2;
+            isCrit = true;
         }
 
         needsEffects = true;
@@ -175,10 +179,12 @@ public class Unit : MonoBehaviour
         //
         this.Update();
         animator.SetTrigger("timeToAttack");
+        log.updateAttack(this, unit, attackValue, unit.unitDefense, isCrit);
     }
 
     public void Attack(Unit unit)
     {
+        bool isCrit = false;
         System.Random randomAttack = new System.Random();
         int attackValue = randomAttack.Next(this.unitMinAttack, this.unitMaxAttack);
 
@@ -186,6 +192,7 @@ public class Unit : MonoBehaviour
         if(critResult <= this.unitCriticalStrikeChance)
         {
             attackValue = attackValue * 2;
+            isCrit = true;
         }
 
         deselectAfterAttack();
@@ -196,6 +203,7 @@ public class Unit : MonoBehaviour
 		HealthBarR.GetComponent<Health> ().updateHealthBar (unit);
         hasAttackedOnThisTurn = true;
         this.Update();
+        log.updateAttack(this, unit, attackValue, unit.unitDefense, isCrit);
     }
 
     void UpdateHistory()
@@ -214,8 +222,13 @@ public class Unit : MonoBehaviour
         if (dodgeResult <= this.unitDodgeChance)
         {
             attackValue = 0;
+            log.updateDodge(this);
         }
 
+        if (attackValue > 0)
+        {
+            animator.SetTrigger("timeToGetHurt");
+        }
         this.unitHealth = this.unitHealth - attackValue;
         
         if (theBattleManager.enemyUnits.Contains(this))
@@ -223,8 +236,10 @@ public class Unit : MonoBehaviour
             if (this.unitHealth <= 0)
             {
                 theBattleManager.enemyUnits.Remove(this);
-				Destroy(this.gameObject);
-				HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
+                animator.SetTrigger("timeToDie");
+                teamID = -1;
+                //Destroy(this.gameObject);
+                HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
                 checkGameOver();
             }
         }
@@ -233,11 +248,18 @@ public class Unit : MonoBehaviour
             if (this.unitHealth <= 0)
             {
                 theBattleManager.friendlyUnits.Remove(this);
-                Destroy(this.gameObject);
-				HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
+                //Destroy(this.gameObject);
+                animator.SetTrigger("timeToDie");
+                teamID = -1;
+                HealthBarR.GetComponent<Health>().updateHealthBar(this); // Leslie added to ensure that healthbar updates when attacked - even if game over
                 checkGameOver();
             }
         }
+        if (attackValue > 0)
+        {
+            animator.SetTrigger("timeToGetHurt");
+        }
+
     }
 
     // Private helper method that handles unit selection cases. 
@@ -310,11 +332,18 @@ public class Unit : MonoBehaviour
         if (theBattleManager.enemyUnits.Count == 0)
         {
             theBattleManager.GetComponent<pauseMenuScript>().WinGame();
+            gridScript.endTurnButton.SetActive(false);
         }
 
         if (theBattleManager.friendlyUnits.Count == 0)
         {
             theBattleManager.GetComponent<pauseMenuScript>().LoseGame();
+            gridScript.endTurnButton.SetActive(false);
         }
+    }
+
+    public void setRotation(Quaternion theRotation)
+    {
+        transform.rotation = theRotation; // used to change camera angles.
     }
 }

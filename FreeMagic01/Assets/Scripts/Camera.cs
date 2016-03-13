@@ -38,4 +38,9 @@ public class Camera : MonoBehaviour {
         distance = distance / 4;
         ratio = 0;
     }
+
+    public void setRotation(Quaternion theRotation)
+    {
+        transform.rotation = theRotation;
+    }
 }

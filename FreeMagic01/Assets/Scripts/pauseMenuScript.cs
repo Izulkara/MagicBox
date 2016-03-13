@@ -28,6 +28,7 @@ public class pauseMenuScript : MonoBehaviour
         loseMenu.enabled = false;
         uiCanvas.enabled = true;
         menu.SetActive(showing);
+
     }
 
     public void ExitPress()
@@ -96,6 +97,10 @@ public class pauseMenuScript : MonoBehaviour
             togglePause();
             showing = !showing;
             menu.SetActive(showing);
+        }
+        if (Input.GetKeyDown("tab"))
+        {
+            theManager.togglePerspective();
         }
     }
 

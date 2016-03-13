@@ -30,6 +30,8 @@ public class Health : MonoBehaviour
     public Text enemyDef;
     public Text playerDodge;
     public Text enemyDodge;
+	public Text playerRange;
+	public Text enemyRange;
 
     // the left portraits to display
     public GameObject archerPic;
@@ -86,6 +88,8 @@ public class Health : MonoBehaviour
         enemyDef.enabled = true;
         playerDodge.enabled = true;
         enemyDodge.enabled = true;
+		playerRange.enabled = true;
+		enemyRange.enabled = true;
         healthRatioLeft.text = "100/100";
         healthRatioRight.text = "100/100";
     }
@@ -116,16 +120,28 @@ public class Health : MonoBehaviour
         String dodge = unit.unitDodgeChance.ToString() + "%";
         if (unit.name.Equals("Steve") || unit.name.Equals("John"))
         {
-            playerDmg.text = "Attack Damage: " + dmg;
+            playerDmg.text = "Damage: " + dmg;
             playerDef.text = "Defense: " + def;
             playerCrit.text = "Critical Strike: " + crit;
             playerDodge.text = "Dodge: " + dodge;
+			if (unit.unitAttackRange == 1) {
+				playerRange.text = "Melee: ";
+			} else {
+				playerRange.text = "Ranged: ";
+			}
+			playerRange.text += unit.unitAttackRange + " units";
         }
         else {
-            enemyDmg.text = "Attack Damage: " + dmg;
+            enemyDmg.text = "Damage: " + dmg;
             enemyDef.text = "Defense: " + def;
             enemyCrit.text = "Critical Strike: " + crit;
             enemyDodge.text = "Dodge: " + dodge;
+			if (unit.unitAttackRange == 1) {
+				enemyRange.text = "Melee: ";
+			} else {
+				enemyRange.text = "Ranged: ";
+			}
+			enemyRange.text += unit.unitAttackRange + " units";
         }
     }
 
@@ -148,11 +164,19 @@ public class Health : MonoBehaviour
             float current = unit.unitHealth; // get the current health
 
             hit = ((max - current) / max) * -1; // calculate hit ratio
-            if (current <= 0)
-            { // make adjustments if the unit is newly dead
-                hit = -1;
-                current = 0;
-            }
+			if (current <= 0) { // make adjustments if the unit is newly dead
+				hit = -1;
+				current = 0;
+				if (unit.teamID == 1) {
+					healthBarLeft.SetActive (false);
+				} else {
+					healthBarRight.SetActive (false);
+				}
+			} else if (current > 0 && unit.teamID == 1 && !healthBarLeft.activeSelf) {
+				healthBarLeft.SetActive (true);
+			} else if (current > 0 && unit.teamID == 0 && !healthBarRight.activeSelf) {
+				healthBarRight.SetActive (true);
+			}
             if (unit.name.Equals("John") || unit.name.Equals("Steve"))
             { // if it is John or Steve - trigger left flag
                 isLeft = true;
